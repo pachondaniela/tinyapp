@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; //Default por 8080
 
-const URL = {
+const urlDatabase = {
    b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -10,6 +10,12 @@ const URL = {
 app.get("/", (req, res) => {
   res.send("Hello!!");
 });
+
+//Add additional routers or endpoints:
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
