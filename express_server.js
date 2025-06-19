@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; //Default por 8080
-const cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser");
 
-app.use(express.urlencoded({extended: true}))
-app.use(cookieParser())
+app.use(express.urlencoded({extended: true}));
+app.use(cookieParser());
 
 
 
@@ -21,12 +21,12 @@ app.use((req, res, next) => {
 });
 
 const urlDatabase = {
-   b2xVn2:"http://www.lighthouselabs.ca",
+  b2xVn2:"http://www.lighthouselabs.ca",
   "9sm5xK":"http://www.google.com"
 };
 
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase , username: req.cookies["username"]}
+  const templateVars = {urls: urlDatabase , username: req.cookies["username"]};
   res.render("urls_index", templateVars);
 });
 
@@ -38,55 +38,51 @@ app.get("/urls/new", (req, res) => {
 
 
 app.post("/login", (req, res) => {
-  const username = req.body.username
-  res.cookie("username", username).redirect("/urls")
+  const username = req.body.username;
+  res.cookie("username", username).redirect("/urls");
 });
 
 app.post("/logout" , (req, res) => {
-  res.clearCookie('username', { path: '/'} ).redirect("/urls")
+  res.clearCookie('username', { path: '/'}).redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
-  const randomID = generateRandomString()
-  const longURL = req.body.longURL
-  urlDatabase[randomID] = longURL
-  res.redirect(`/urls/${randomID}`)
+  const randomID = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[randomID] = longURL;
+  res.redirect(`/urls/${randomID}`);
 });
 
 app.post("/urls/:id/delete", (req,res) => {
-  const deleteID = req.params.id
-  delete urlDatabase[deleteID]
+  const deleteID = req.params.id;
+  delete urlDatabase[deleteID];
   res.redirect("/urls");
 
 });
 
 app.post("/urls/:id", (req, res) => {
-  const newURL = req.body.longURL
-  const id = req.params.id
-  urlDatabase[id] = newURL
+  const newURL = req.body.longURL;
+  const id = req.params.id;
+  urlDatabase[id] = newURL;
   res.redirect("/urls");
 });
 
 app.get("/u/:id", (req, res) => {
-  const id = req.params.id
-  const longURL = urlDatabase[id]
-    if (!longURL) {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  if (!longURL) {
     return res.status(404).send("URL not found");
   }
-  res.redirect(longURL)
-})
-
-
-app.get("/urls/:id", (req, res) => {
-  const id = req.params.id
-  const longURL = urlDatabase[id]
-  const templateVars = {id , longURL}
-  res.render("urls_show", templateVars);
+  res.redirect(longURL);
 });
 
 
-
-
+app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  const templateVars = {id , longURL};
+  res.render("urls_show", templateVars);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
