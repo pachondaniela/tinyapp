@@ -40,7 +40,11 @@ app.get("/urls/new", (req, res) => {
 app.post("/login", (req, res) => {
   const username = req.body.username
   res.cookie("username", username).redirect("/urls")
-})
+});
+
+app.post("/logout" , (req, res) => {
+  res.clearCookie('username', { path: '/'} ).redirect("/urls")
+});
 
 app.post("/urls", (req, res) => {
   const randomID = generateRandomString()
