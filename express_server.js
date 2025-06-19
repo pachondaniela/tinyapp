@@ -5,6 +5,7 @@ const PORT = 8080; //Default por 8080
 app.use(express.urlencoded({extended: true}))
 
 
+
 app.set("view engine", "ejs");
 
 function generateRandomString() {
@@ -24,6 +25,12 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+
+app.post("/login", (req, res) => {
+  const username = req.body.username
+  res.cookie("username", username).redirect("/urls")
+})
 
 app.post("/urls", (req, res) => {
   const randomID = generateRandomString()
