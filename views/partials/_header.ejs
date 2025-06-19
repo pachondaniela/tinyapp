@@ -12,6 +12,17 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
+      <nav>
+    <% if (username) { %>
+      <span>Logged in as <%=username%> </span>
+      <form method="POST" action="/logout" style="display:inline;">
+        <button type="submit">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/login">Login</a>
+    <% } %>
+    </nav>
+ 
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
