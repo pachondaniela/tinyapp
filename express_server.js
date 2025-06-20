@@ -87,15 +87,18 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(404).send("Please enter the missing fields");
   }
-  users[user_id] = {id: user_id, email, password}
-  res.cookie("email", email, { path: "/"})
-  console.log(users)
-
+  
   const existingUser = userLookup(email)
   console.log(existingUser)
   if (existingUser.email === email){
     return res.status(404).send("Account already exists");
   }
+
+  users[user_id] = {id: user_id, email, password}
+  res.cookie("email", email, { path: "/"})
+  console.log(users)
+
+ 
   res.redirect("/urls");
 
 });
