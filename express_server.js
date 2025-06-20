@@ -10,9 +10,23 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
-function generateRandomString() {
+const generateRandomString = function () {
   return Math.random().toString(36).substring(2,8);
 }
+
+const userLookup = function(existingEmail){
+  const foundUser = Object.values(users).find(
+    user => user.email === existingEmail
+  );
+
+  if (foundUser) {
+    return foundUser;  // If found the user based  on the email, return the entire information object of that user
+  }
+
+  return null; // or return undefined
+};
+
+
 
 app.use((req, res, next) => {
   const email = req.cookies.email; // or from req.session.username
@@ -58,10 +72,7 @@ app.get("/register", (req, res) => {
 });
 
 
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  res.cookie("email", email, { path: "/" }).redirect("/urls");
-});
+
 
 app.post("/logout" , (req, res) => {
   res.clearCookie('email', { path: '/'}).redirect("/urls");
@@ -69,12 +80,36 @@ app.post("/logout" , (req, res) => {
 
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
+
   const email = req.body.email
   const password = req.body.password
+
+  if (!email || !password) {
+    return res.status(404).send("Please enter the missing fields");
+  }
   users[user_id] = {id: user_id, email, password}
   res.cookie("email", email, { path: "/"})
   console.log(users)
+
+  const existingUser = userLookup(email)
+  console.log(existingUser)
+  if (existingUser.email === email){
+    return res.status(404).send("Account already exists");
+  }
   res.redirect("/urls");
+
+});
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+
+  const existingUser = userLookup(email)
+  if (existingUser === null){
+    return res.redirect("/register");
+  } 
+
+  res.cookie("email", email, { path: "/"});
+  return res.redirect("/urls")
 });
 
 
