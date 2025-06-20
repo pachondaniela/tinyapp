@@ -13,8 +13,8 @@
       <span class="navbar-toggler-icon"></span>
     </button>
       <nav>
-    <% if (email) { %>
-      <span>Logged in as <%=email%> </span>
+    <% if (user_id) { %>
+      <span>Logged in as <%=user_id%> </span>
       <form method="POST" action="/logout" style="display:inline;">
         <button type="submit">Logout</button>
       </form>
