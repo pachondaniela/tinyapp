@@ -15,8 +15,8 @@ function generateRandomString() {
 }
 
 app.use((req, res, next) => {
-  const username = req.cookies.username; // or from req.session.username
-  res.locals.username = username || null;
+  const email = req.cookies.email; // or from req.session.username
+  res.locals.email = email || null;
   next();
 });
 
@@ -43,7 +43,7 @@ const users = {
 
 
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase , username: req.cookies["username"]};
+  const templateVars = {urls: urlDatabase , users: req.cookies["email"]};
   res.render("urls_index", templateVars);
 });
 
@@ -59,22 +59,22 @@ app.get("/register", (req, res) => {
 
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username).redirect("/urls");
+  const email = req.body.email;
+  res.cookie("email", email, { path: "/" }).redirect("/urls");
 });
 
 app.post("/logout" , (req, res) => {
-  res.clearCookie('username', { path: '/'}).redirect("/urls");
+  res.clearCookie('email', { path: '/'}).redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
-  const randomID = generateRandomString();
+  const user_id = generateRandomString();
   const email = req.body.email
   const password = req.body.password
-  users[randomID] = {randomID, email, password}
-  res.cookie("NewID",randomID)
+  users[user_id] = {id: user_id, email, password}
+  res.cookie("email", email, { path: "/"})
   console.log(users)
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 

@@ -13,13 +13,13 @@
       <span class="navbar-toggler-icon"></span>
     </button>
       <nav>
-    <% if (username) { %>
-      <span>Logged in as <%=username%> </span>
+    <% if (email) { %>
+      <span>Logged in as <%=email%> </span>
       <form method="POST" action="/logout" style="display:inline;">
         <button type="submit">Logout</button>
       </form>
     <% } else { %>
-      
+     
     <% } %>
     </nav>
  
@@ -31,7 +31,7 @@
           <input
             type="text"
             placeholder="Username"
-            name="username"
+            name="email"
           />
           <button type="submit" class="btn btn-primary">Login</button>
           <a href = "/register">
