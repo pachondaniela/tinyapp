@@ -3,12 +3,22 @@ const app = express();
 const PORT = 8080; //Default por 8080
 const cookieParser = require("cookie-parser");
 
+
+// Elements to be used in the code. 
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use((req, res, next) => {
+  const user_id = req.cookies.user_id; // or from req.session.username
+  res.locals.user_id = user_id || null;
+  next();
+});
 
 
-
+// Template format that we will use
 app.set("view engine", "ejs");
+
+
+// DRY Functions that will be used throghoug the code. 
 
 const generateRandomString = function () {
   return Math.random().toString(36).substring(2,8);
@@ -27,13 +37,7 @@ const userLookup = function(existingEmail){
 };
 
 
-
-app.use((req, res, next) => {
-  const email = req.cookies.email; // or from req.session.username
-  res.locals.email = email || null;
-  next();
-});
-
+// Local Databases
 const urlDatabase = {
   b2xVn2:"http://www.lighthouselabs.ca",
   "9sm5xK":"http://www.google.com"
@@ -53,15 +57,11 @@ const users = {
   },
 };
 
-
-
-
+// GET Methods to rended in .ejs files.
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase , users: req.cookies["email"]};
+  const templateVars = {urls: urlDatabase , users: req.cookies["id"]};
   res.render("urls_index", templateVars);
 });
-
-
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -71,12 +71,12 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+})
 
 
-
-app.post("/logout" , (req, res) => {
-  res.clearCookie('email', { path: '/'}).redirect("/urls");
-});
+// POST Methods to action once user interacts with our app.
 
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
@@ -95,7 +95,7 @@ app.post("/register", (req, res) => {
   }
 
   users[user_id] = {id: user_id, email, password}
-  res.cookie("email", email, { path: "/"})
+  res.cookie("user_id", user_id, { path: "/"})
   console.log(users)
 
  
@@ -105,16 +105,24 @@ app.post("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
   const email = req.body.email;
+  const password = req.body.password
 
   const existingUser = userLookup(email)
   if (existingUser === null){
     return res.redirect("/register");
   } 
 
-  res.cookie("email", email, { path: "/"});
+  if (existingUser.email === email && existingUser.password !== password) {
+    return res.status(403).send("Wrong Password");
+  }
+
+  res.cookie("user_id", existingUser.id, { path: "/"});
   return res.redirect("/urls")
 });
 
+app.post("/logout" , (req, res) => {
+  res.clearCookie('user_id', { path: '/'}).redirect("/login");
+});
 
 
 app.post("/urls", (req, res) => {
@@ -154,6 +162,9 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {id , longURL};
   res.render("urls_show", templateVars);
 });
+
+
+//Conenction to the server
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
