@@ -64,14 +64,25 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+
+  if(!req.cookies.user_id){
+    return res.redirect("/login")
+  }
   res.render("urls_new");
 });
 
 app.get("/register", (req, res) => {
+   if(req.cookies.user_id){
+    res.redirect("/urls")
+  }
   res.render("register");
 });
 
 app.get("/login", (req, res) => {
+
+  if(req.cookies.user_id){
+    res.redirect("/urls")
+  }
   res.render("login");
 })
 
@@ -126,6 +137,10 @@ app.post("/logout" , (req, res) => {
 
 
 app.post("/urls", (req, res) => {
+
+  if(!req.cookies.user_id){
+    return res.status(404).send("You need to log in to create a new URL");
+  }
   const randomID = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[randomID] = longURL;
@@ -140,6 +155,8 @@ app.post("/urls/:id/delete", (req,res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
+
+
   const newURL = req.body.longURL;
   const id = req.params.id;
   urlDatabase[id] = newURL;
@@ -147,6 +164,8 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+
+  
   const id = req.params.id;
   const longURL = urlDatabase[id];
   if (!longURL) {
