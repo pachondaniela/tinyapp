@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; //Default por 8080
 const cookieParser = require("cookie-parser");
+// const { useImperativeHandle } = require("react");
 
 
 // Elements to be used in the code. 
@@ -74,7 +75,7 @@ function requireLogin(req, res, next) {
     return res.status(401).send("❗ You must be logged in.");
   }
   req.userID = userID;
-  next();
+  return next();
 }
 
 function checkUrlExists(req, res, next) {
@@ -83,16 +84,16 @@ function checkUrlExists(req, res, next) {
     return res.status(404).send(`❗ No URL found with id: ${req.params.id}`);
   }
   req.urlObj = url;
-  next();
+  return next();
 
 
 }
 
-function checkOwnership(req, res, next) {
+function urlsForUser(req, res, next) {
   if (req.urlObj.userID !== req.userID) {
     return res.status(403).send("❗ You don't have permission to modify this URL.");
   }
-  next();
+  return next();
 }
 
 
@@ -181,9 +182,9 @@ app.post("/urls", (req, res) => {
     return res.status(404).send("You need to log in to create a new URL");
   }
   const randomID = generateRandomString();
-  const user_id = req.cookies.user_id
+  const userID = req.cookies.user_id
   const longURL = req.body.longURL;
-  urlDatabase[randomID] = {longURL , user_id } ;
+  urlDatabase[randomID] = {longURL , userID } ;
   res.redirect(`/urls/${randomID}`);
 });
 
@@ -192,7 +193,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id",
   requireLogin,
   checkUrlExists,
-  checkOwnership,
+  urlsForUser,
   (req, res) => {
  // Validated, perform update
     urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -202,7 +203,7 @@ app.post("/urls/:id",
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase.longURL;
+  const longURL = urlDatabase[id].longURL;
   if (!longURL) {
     return res.status(404).send("URL not found");
   }
@@ -214,7 +215,7 @@ app.post(
   "/urls/:id/delete",
   requireLogin,
   checkUrlExists,
-  checkOwnership,
+  urlsForUser,
   (req, res) => {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
@@ -222,7 +223,7 @@ app.post(
 );
 
 
-app.get("/urls/:id", requireLogin, (req, res) => {
+app.get("/urls/:id", requireLogin, checkUrlExists, urlsForUser, (req, res) => {
 
   if(!req.cookies.user_id){
     return res.status(404).send("You need to log in to seen URL page");
@@ -230,7 +231,7 @@ app.get("/urls/:id", requireLogin, (req, res) => {
 
   const id = req.params.id;
   const longURL = urlDatabase[id].longURL;
-  const templateVars = {id , longURL};
+  const templateVars = {id, longURL};
   res.render("urls_show", templateVars);
 });
 
