@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080; //Default por 8080
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs")
-const { userLookup } = require("./helpers")
+const { getUserByEmail } = require("./helpers")
 
 
 // Elements to be used in the code. 
@@ -131,7 +131,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Please enter the missing fields");
   }
   
-  const existingUser = userLookup({email, users} )
+  const existingUser = getUserByEmail({email, users} )
   console.log(existingUser)
   if(existingUser !== null && existingUser.email === email) {
     return res.status(400).send("Account already exists");
@@ -150,7 +150,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
 
-  const existingUser = userLookup({email,users})
+  const existingUser = getUserByEmail({email,users})
   if (existingUser === null){
     return res.redirect("/register");
   } 
