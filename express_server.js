@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //Default por 8080
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs")
+const { userLookup } = require("./helpers")
 
 
 // Elements to be used in the code. 
@@ -56,20 +57,6 @@ const users = {
 const generateRandomString = function () {
   return Math.random().toString(36).substring(2,8);
 }
-
-
-// Check if a user already exists in the database
-const userLookup = function(existingEmail){
-  const foundUser = Object.values(users).find(
-    user => user.email === existingEmail
-  );
-
-  if (foundUser) {
-    return foundUser;  // If found the user based  on the email, return the entire information object of that user
-  }
-
-  return null; // or return undefined
-};
 
 //Check if the id of user logged in owns a give URL 
 
@@ -163,7 +150,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
 
-  const existingUser = userLookup(email)
+  const existingUser = userLookup(users, email)
   if (existingUser === null){
     return res.redirect("/register");
   } 
