@@ -32,12 +32,14 @@
           </tr>
         </thead>
         <tbody>
+
+          <% if (user_id) { %>
           <% for (let id in urls) { %>
             <tr>
               <td><a href = "/urls/<%= id %>"><%= id %></a>
                 
               </td>
-              <td><%= urls[id] %></td>
+              <td><%= urls[id].longURL %></td>
                <td>
                 <a href = "/urls/<%= id %>" class="btn btn-primary">Edit Link</a>
               </td>
@@ -45,9 +47,17 @@
                 <form method="POST" action="/urls/<%= id %>/delete">
                   <button type="submit" class="btn btn-primary">Delete </button>
               </td>
-             
+              <% }%>
             </tr>
-          <% } %>
+          <% } else { %>
+               <tr>
+              <td> Please log in or register to access the URLs
+                
+              </td>
+              </tr>
+
+          <% }%>
+
         </tbody>
       </table>
     </main>

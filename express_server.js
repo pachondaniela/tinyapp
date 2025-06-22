@@ -14,33 +14,21 @@ app.use((req, res, next) => {
 });
 
 
+
 // Template format that we will use
 app.set("view engine", "ejs");
 
 
-// DRY Functions that will be used throghoug the code. 
-
-const generateRandomString = function () {
-  return Math.random().toString(36).substring(2,8);
-}
-
-const userLookup = function(existingEmail){
-  const foundUser = Object.values(users).find(
-    user => user.email === existingEmail
-  );
-
-  if (foundUser) {
-    return foundUser;  // If found the user based  on the email, return the entire information object of that user
-  }
-
-  return null; // or return undefined
-};
-
-
 // Local Databases
 const urlDatabase = {
-  b2xVn2:"http://www.lighthouselabs.ca",
-  "9sm5xK":"http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "erjsfr",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 
@@ -56,6 +44,57 @@ const users = {
     password: "dishwasher-funk",
   },
 };
+
+// DRY Functions that will be used throghoug the code. 
+
+//Generate a random URL Id.
+const generateRandomString = function () {
+  return Math.random().toString(36).substring(2,8);
+}
+
+
+// Check if a user already exists in the database
+const userLookup = function(existingEmail){
+  const foundUser = Object.values(users).find(
+    user => user.email === existingEmail
+  );
+
+  if (foundUser) {
+    return foundUser;  // If found the user based  on the email, return the entire information object of that user
+  }
+
+  return null; // or return undefined
+};
+
+//Check if the id of user logged in owns a give URL 
+
+function requireLogin(req, res, next) {
+  const userID = req.cookies.user_id;
+  if (!userID) {
+    return res.status(401).send("❗ You must be logged in.");
+  }
+  req.userID = userID;
+  next();
+}
+
+function checkUrlExists(req, res, next) {
+  const url = urlDatabase[req.params.id];
+  if (!url) {
+    return res.status(404).send(`❗ No URL found with id: ${req.params.id}`);
+  }
+  req.urlObj = url;
+  next();
+
+
+}
+
+function checkOwnership(req, res, next) {
+  if (req.urlObj.userID !== req.userID) {
+    return res.status(403).send("❗ You don't have permission to modify this URL.");
+  }
+  next();
+}
+
 
 // GET Methods to rended in .ejs files.
 app.get("/urls", (req, res) => {
@@ -142,32 +181,28 @@ app.post("/urls", (req, res) => {
     return res.status(404).send("You need to log in to create a new URL");
   }
   const randomID = generateRandomString();
+  const user_id = req.cookies.user_id
   const longURL = req.body.longURL;
-  urlDatabase[randomID] = longURL;
+  urlDatabase[randomID] = {longURL , user_id } ;
   res.redirect(`/urls/${randomID}`);
 });
 
-app.post("/urls/:id/delete", (req,res) => {
-  const deleteID = req.params.id;
-  delete urlDatabase[deleteID];
-  res.redirect("/urls");
-
-});
-
-app.post("/urls/:id", (req, res) => {
 
 
-  const newURL = req.body.longURL;
-  const id = req.params.id;
-  urlDatabase[id] = newURL;
-  res.redirect("/urls");
-});
+app.post("/urls/:id",
+  requireLogin,
+  checkUrlExists,
+  checkOwnership,
+  (req, res) => {
+ // Validated, perform update
+    urlDatabase[req.params.id].longURL = req.body.longURL;
+    res.redirect("/urls");
+  }
+);
 
 app.get("/u/:id", (req, res) => {
-
-  
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase.longURL;
   if (!longURL) {
     return res.status(404).send("URL not found");
   }
@@ -175,9 +210,26 @@ app.get("/u/:id", (req, res) => {
 });
 
 
-app.get("/urls/:id", (req, res) => {
+app.post(
+  "/urls/:id/delete",
+  requireLogin,
+  checkUrlExists,
+  checkOwnership,
+  (req, res) => {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  }
+);
+
+
+app.get("/urls/:id", requireLogin, (req, res) => {
+
+  if(!req.cookies.user_id){
+    return res.status(404).send("You need to log in to seen URL page");
+  }
+
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   const templateVars = {id , longURL};
   res.render("urls_show", templateVars);
 });
