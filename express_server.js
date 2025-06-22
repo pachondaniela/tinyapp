@@ -150,7 +150,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
 
-  const existingUser = userLookup(users, email)
+  const existingUser = userLookup(email)
   if (existingUser === null){
     return res.redirect("/register");
   } 
