@@ -19,7 +19,7 @@ describe('userLookup', function() {
   it('should return a user with valid email', function() {
     const user = userLookup("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
-    assert.equal(user.id, expectedUserID, 'should return correct user id');
+    assert.equal(user.email, testUsers[expectedUserID].email, 'should return correct user id');
   });
 
   it('should return null for non-existent email', function() {

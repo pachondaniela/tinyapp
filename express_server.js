@@ -131,7 +131,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Please enter the missing fields");
   }
   
-  const existingUser = userLookup(email)
+  const existingUser = userLookup({email, users} )
   console.log(existingUser)
   if(existingUser !== null && existingUser.email === email) {
     return res.status(400).send("Account already exists");
@@ -150,7 +150,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
 
-  const existingUser = userLookup(email)
+  const existingUser = userLookup({email,users})
   if (existingUser === null){
     return res.redirect("/register");
   } 
