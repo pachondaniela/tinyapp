@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; //Default por 8080
 const cookieParser = require("cookie-parser");
-// const { useImperativeHandle } = require("react");
+const bcrypt = require("bcryptjs")
 
 
 // Elements to be used in the code. 
@@ -134,8 +134,9 @@ app.post("/register", (req, res) => {
 
   const email = req.body.email
   const password = req.body.password
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
-  if (!email || !password) {
+  if (!email || !hashedPassword) {
     return res.status(400).send("Please enter the missing fields");
   }
   
@@ -145,7 +146,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Account already exists");
   }
 
-  users[user_id] = {id: user_id, email, password}
+  users[user_id] = {id: user_id, email, hashedPassword}
   res.cookie("user_id", user_id, { path: "/"})
   console.log(users)
 
@@ -157,14 +158,17 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
+  const hashedPassword = password
 
   const existingUser = userLookup(email)
   if (existingUser === null){
     return res.redirect("/register");
   } 
 
-  if (existingUser.email === email && existingUser.password !== password) {
-    return res.status(403).send("Wrong Password");
+  const passwordMatches = bcrypt.compareSync(password, existingUser.hashedPassword);
+  
+  if (!passwordMatches) {
+    return res.status(403).send("❌ Wrong password");
   }
 
   res.cookie("user_id", existingUser.id, { path: "/"});
