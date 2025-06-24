@@ -12,7 +12,7 @@ A simple URL-shortening web application built using Node.js, Express, EJS, and c
 - **EJS** — Templating engine  
 - **cookie-session** — Session-based authentication  
 - **bcryptjs** — Secure password hashing  
-- **Helpers** — Contains `getUserByEmail()` utility  
+
 
 ---
 
