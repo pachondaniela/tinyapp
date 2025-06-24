@@ -4,6 +4,11 @@ const getUserByEmail = function({ email, users }) {
   return foundUser || null;
 };
 
+
+
 module.exports = {
   getUserByEmail
 }
+
+
+
