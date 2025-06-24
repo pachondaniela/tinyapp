@@ -81,10 +81,16 @@ function checkUrlExists(req, res, next) {
 }
 
 function urlsForUser(req, res, next) {
+  
+
   if (req.urlObj.userID !== req.userID) {
     return res.status(403).send("❗ You don't have permission to modify this URL.");
   }
+
+
   return next();
+
+   
 }
 
 
@@ -181,6 +187,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id
   const longURL = req.body.longURL;
   urlDatabase[randomID] = {longURL , userID } ;
+  console.log(urlDatabase)
   res.redirect(`/urls/${randomID}`);
 });
 
@@ -213,6 +220,7 @@ app.post(
   checkUrlExists,
   urlsForUser,
   (req, res) => {
+  
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
   }
