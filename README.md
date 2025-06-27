@@ -2,7 +2,7 @@
 
 A simple URL-shortening web application built using Node.js, Express, EJS, and cookie-based sessions. Users can register and log in, create short URLs, view, edit, and delete only their own links.
 
-![alt text](image-1.png)
+![alt text](./assets/sample.png)
 
 ---
 
