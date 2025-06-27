@@ -41,3 +41,12 @@ A simple URL-shortening web application built using Node.js, Express, EJS, and c
    ```bash
    git clone https://github.com/pachondaniela/tinyapp
    cd tinyapp
+2. Use npm install to install all the packages:
+    The project uses the following key dependencies:
+
+    * bcryptjs – for password hashing
+    * cookie-session – to manage user sessions
+    * ejs – as the templating engine
+    * express – for building the server
+
+Start the application using: npm start

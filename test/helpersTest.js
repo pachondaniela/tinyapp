@@ -4,13 +4,13 @@ const { getUserByEmail } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
   "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
@@ -20,7 +20,7 @@ describe('getUserByEmail', function() {
     const user = getUserByEmail({email: "user@example.com", users: testUsers});
     const expectedUserID = "user@example.com";
     
-    assert.equal(user.email, expectedUserID );
+    assert.equal(user.email, expectedUserID);
    
   });
 

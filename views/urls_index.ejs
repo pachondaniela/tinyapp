@@ -19,7 +19,11 @@
   <body>
   
     <%- include('partials/_header') %>
+
+
     <main style="margin: 1em;">
+
+      <% if (user_id) { %>
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -33,10 +37,13 @@
         </thead>
         <tbody>
 
-          <% if (user_id) { %>
+        
           <% for (let id in urls) { %>
+
+           <% if (user_id === urls[id].userID) {%>
+           
             <tr>
-              <td><a href = "/urls/<%= id %>"><%= id %></a>
+              <td><a href = "/u/<%= id %>"><%= id %></a>
                 
               </td>
               <td><%= urls[id].longURL %></td>
@@ -48,7 +55,9 @@
                   <button type="submit" class="btn btn-primary">Delete </button>
                 </form>
               </td>
-              <% }%>
+            
+              <% } %>
+              <% } %>
             </tr>
           <% } else { %>
                <tr>

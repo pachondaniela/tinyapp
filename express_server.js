@@ -63,7 +63,10 @@ const generateRandomString = function() {
 const requireLogin = function(req, res, next) {
   const userID = req.session.user_id;
   if (!userID) {
-    return res.status(401).send("❗ You must be logged in.");
+    return res.status(401).render("error", {
+      errorMessage: "❗ You must be logged in."
+    });
+    
   }
   req.userID = userID;
   return next();
@@ -72,7 +75,11 @@ const requireLogin = function(req, res, next) {
 const checkUrlExists =  function(req, res, next) {
   const url = urlDatabase[req.params.id];
   if (!url) {
-    return res.status(404).send(`❗ No URL found with id: ${req.params.id}`);
+
+    return res.status(404).render("error", {
+      errorMessage: `❗ No URL found with id: ${req.params.id}`
+    });
+    
   }
   req.urlObj = url;
   return next();
@@ -84,7 +91,10 @@ const urlsForUser = function(req, res, next) {
   
 
   if (req.urlObj.userID !== req.userID) {
-    return res.status(403).send("❗ You don't have permission to modify this URL.");
+    return res.status(403).render("error", {
+      errorMessage: "❗ You don't have permission to modify this URL."
+    });
+  
   }
 
 
@@ -98,6 +108,7 @@ const urlsForUser = function(req, res, next) {
 app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase , users: req.session["id"]};
   res.render("urls_index", templateVars);
+  
 });
 
 app.get("/urls/new", (req, res) => {
@@ -134,20 +145,23 @@ app.post("/register", (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (!email || !password) {
-    return res.status(400).send("Please enter the missing fields");
+    return res.status(400).render("error", {
+      errorMessage: "Please enter missing fields"
+    });
+   
   }
   
   const existingUser = getUserByEmail({email, users});
-  console.log(existingUser);
+  
   if (existingUser !== null && existingUser.email === email) {
-    return res.status(400).send("Account already exists");
+    return res.status(403).render("error", {
+      errorMessage: "Account already exists"
+    });
+
   }
 
   users[user_id] = {id: user_id, email, hashedPassword};
   req.session.user_id = user_id;
-  console.log(users);
-
- 
   res.redirect("/urls");
 
 });
@@ -164,7 +178,10 @@ app.post("/login", (req, res) => {
   const passwordMatches = bcrypt.compareSync(password, existingUser.hashedPassword);
 
   if (!passwordMatches) {
-    return res.status(403).send("❌ Wrong password");
+    return res.status(403).render("error", {
+      errorMessage: "❌ Wrong password"
+    });
+
   }
 
   req.session.user_id = existingUser.id;
@@ -181,13 +198,15 @@ app.post("/logout" , (req, res) => {
 app.post("/urls", (req, res) => {
 
   if (!req.session.user_id) {
-    return res.status(404).send("You need to log in to create a new URL");
+    return res.status(404).render("error", {
+      errorMessage: "You need to log in to create a new URL."
+    });
   }
   const randomID = generateRandomString();
   const userID = req.session.user_id;
   const longURL = req.body.longURL;
   urlDatabase[randomID] = {longURL , userID };
-  console.log(urlDatabase);
+
   res.redirect(`/urls/${randomID}`);
 });
 
@@ -204,11 +223,28 @@ app.post("/urls/:id",
 );
 
 app.get("/u/:id", (req, res) => {
-  const id = req.params.id;
-  const longURL = urlDatabase[id].longURL;
-  if (!longURL) {
-    return res.status(404).send("URL not found");
+
+  const shortURL = req.params.id;
+
+
+  const urlEntry = urlDatabase[shortURL];
+
+  if (!urlEntry) {
+ 
+    return res.status(404).render("error", {
+      errorMessage: "Short URL not found."
+    });
   }
+
+  const longURL = urlEntry.longURL;
+
+  if (!longURL) {
+    return res.status(404).render("error", {
+      errorMessage: "URL is missing."
+    });
+  }
+
+
   res.redirect(longURL);
 });
 
@@ -229,7 +265,10 @@ app.post(
 app.get("/urls/:id", requireLogin, checkUrlExists, urlsForUser, (req, res) => {
 
   if (!req.session.user_id) {
-    return res.status(404).send("You need to log in to seen URL page");
+    return res.status(404).render("error", {
+      errorMessage: "You need to log in to see URL page"
+    });
+   
   }
 
   const id = req.params.id;
