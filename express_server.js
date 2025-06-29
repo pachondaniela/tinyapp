@@ -105,6 +105,15 @@ const urlsForUser = function(req, res, next) {
 
 
 // GET Methods to rended in .ejs files.
+
+app.get("/", (req, res) => {
+   if (!req.session.user_id) {
+    return res.redirect("/login");
+  }
+  res.redirect("/urls");
+});
+
+
 app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase , users: req.session["id"]};
   res.render("urls_index", templateVars);
